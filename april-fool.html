@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🔴 URGENT: Your Device Has a Virus</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --red: #ff1a1a;
+      --dark: #0a0a0a;
+      --panel: #111;
+      --text: #e0e0e0;
+      --warn: #ff6600;
+    }
+
+    body {
+      background: var(--dark);
+      color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      cursor: none;
+    }
+
+    /* Scanline overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.08) 2px,
+        rgba(0,0,0,0.08) 4px
+      );
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* Noise grain */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: -200%;
+      width: 400%;
+      height: 400%;
+      opacity: 0.04;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9998;
+      animation: grain 0.4s steps(1) infinite;
+    }
+
+    @keyframes grain {
+      0%,100%{transform:translate(0,0)}
+      10%{transform:translate(-3%,-4%)}
+      20%{transform:translate(-6%,3%)}
+      30%{transform:translate(3%,-2%)}
+      40%{transform:translate(-1%,5%)}
+      50%{transform:translate(-5%,1%)}
+      60%{transform:translate(4%,2%)}
+      70%{transform:translate(1%,-4%)}
+      80%{transform:translate(-3%,3%)}
+      90%{transform:translate(2%,1%)}
+    }
+
+    /* Custom cursor */
+    .cursor {
+      width: 16px; height: 16px;
+      border: 2px solid var(--red);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 99999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s, background 0.2s;
+      mix-blend-mode: difference;
+    }
+
+    /* Background blinking alert border */
+    .alert-border {
+      position: fixed;
+      inset: 0;
+      border: 6px solid var(--red);
+      pointer-events: none;
+      z-index: 9997;
+      animation: borderBlink 0.8s step-start infinite;
+    }
+
+    @keyframes borderBlink {
+      0%, 49% { opacity: 1; }
+      50%, 100% { opacity: 0; }
+    }
+
+    /* Main panel */
+    .panel {
+      background: var(--panel);
+      border: 1px solid #333;
+      border-top: 3px solid var(--red);
+      width: min(680px, 95vw);
+      padding: 0;
+      box-shadow: 0 0 60px rgba(255,26,26,0.15), 0 0 120px rgba(255,26,26,0.05);
+      position: relative;
+      animation: panelIn 0.5s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    @keyframes panelIn {
+      from { opacity: 0; transform: scale(0.93) translateY(20px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* Titlebar */
+    .titlebar {
+      background: #1a0000;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid #2a0000;
+    }
+
+    .titlebar-dots { display: flex; gap: 6px; }
+    .dot {
+      width: 12px; height: 12px; border-radius: 50%;
+    }
+    .dot-r { background: #ff453a; }
+    .dot-y { background: #ffbd2e; }
+    .dot-g { background: #27c93f; }
+
+    .titlebar-title {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      color: #ff6666;
+      letter-spacing: 0.1em;
+      flex: 1;
+      text-align: center;
+    }
+
+    /* Body */
+    .panel-body { padding: 32px 36px 28px; }
+
+    /* Icon + headline */
+    .icon-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .shield-icon {
+      font-size: 52px;
+      animation: shake 0.3s infinite;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    @keyframes shake {
+      0%,100%{transform:rotate(-4deg)}
+      50%{transform:rotate(4deg)}
+    }
+
+    .headline {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(26px, 5vw, 40px);
+      line-height: 1.05;
+      color: var(--red);
+      letter-spacing: 0.03em;
+      text-shadow: 0 0 20px rgba(255,26,26,0.4);
+    }
+
+    .sub {
+      font-size: 13px;
+      color: #888;
+      margin-top: 4px;
+      letter-spacing: 0.05em;
+    }
+
+    /* Divider */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, var(--red), transparent);
+      margin: 20px 0;
+    }
+
+    /* Log lines */
+    .log {
+      background: #0d0d0d;
+      border: 1px solid #1e1e1e;
+      padding: 14px 16px;
+      font-size: 12px;
+      line-height: 2;
+      color: #555;
+      margin-bottom: 22px;
+      max-height: 130px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .log-line { opacity: 0; animation: fadeIn 0.3s forwards; }
+    .log-line:nth-child(1) { animation-delay: 0.3s; }
+    .log-line:nth-child(2) { animation-delay: 0.8s; }
+    .log-line:nth-child(3) { animation-delay: 1.3s; }
+    .log-line:nth-child(4) { animation-delay: 1.8s; }
+    .log-line:nth-child(5) { animation-delay: 2.3s; color: var(--red); }
+
+    @keyframes fadeIn { to { opacity: 1; } }
+
+    .log-ok { color: #27c93f; }
+    .log-warn { color: var(--warn); }
+    .log-err { color: var(--red); }
+
+    /* Progress bar */
+    .progress-wrap {
+      margin-bottom: 8px;
+    }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #555;
+      margin-bottom: 6px;
+    }
+    .progress-track {
+      background: #1a1a1a;
+      height: 6px;
+      border-radius: 0;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--red), #ff6600);
+      width: 0%;
+      animation: fillProgress 2.8s ease forwards;
+      animation-delay: 0.5s;
+    }
+
+    @keyframes fillProgress {
+      0% { width: 0%; }
+      60% { width: 72%; }
+      80% { width: 89%; }
+      100% { width: 100%; }
+    }
+
+    .threat-count {
+      font-size: 11px;
+      color: #555;
+      margin-top: 6px;
+      text-align: right;
+    }
+
+    .threat-count span {
+      color: var(--red);
+      font-weight: bold;
+      animation: countUp 2.8s ease forwards;
+    }
+
+    /* CTA Button */
+    .cta-btn {
+      display: block;
+      width: 100%;
+      margin-top: 24px;
+      padding: 16px;
+      background: var(--red);
+      color: #fff;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      letter-spacing: 0.12em;
+      border: none;
+      cursor: none;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.2s;
+      animation: btnPulse 1.2s ease-in-out infinite;
+    }
+
+    @keyframes btnPulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(255,26,26,0.5); }
+      50% { box-shadow: 0 0 0 10px rgba(255,26,26,0); }
+    }
+
+    .cta-btn:hover { background: #cc0000; }
+
+    .cta-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%);
+      transform: translateX(-100%);
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .fine-print {
+      font-size: 10px;
+      color: #333;
+      text-align: center;
+      margin-top: 14px;
+      line-height: 1.6;
+    }
+
+    /* Video overlay */
+    .video-overlay {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      z-index: 100000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s;
+    }
+
+    .video-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .video-overlay iframe,
+    .video-overlay video {
+      width: min(900px, 95vw);
+      aspect-ratio: 16/9;
+      border: none;
+      border-radius: 2px;
+    }
+
+    .fool-banner {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(36px, 8vw, 72px);
+      color: #ffcc00;
+      letter-spacing: 0.1em;
+      margin-bottom: 20px;
+      text-align: center;
+      text-shadow: 0 0 40px rgba(255,200,0,0.4);
+      animation: bounceIn 0.6s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+
+    @keyframes bounceIn {
+      from { transform: scale(0.5); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .close-btn {
+      margin-top: 20px;
+      padding: 10px 28px;
+      background: transparent;
+      border: 1px solid #555;
+      color: #888;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 13px;
+      cursor: pointer;
+      letter-spacing: 0.1em;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .close-btn:hover { border-color: #aaa; color: #fff; }
+
+    /* Credit */
+    .credit {
+      position: fixed;
+      bottom: 16px;
+      right: 20px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: #333;
+      letter-spacing: 0.08em;
+      z-index: 9996;
+      transition: color 0.3s;
+    }
+    .credit:hover { color: #666; }
+    .credit span { color: var(--red); }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+  <div class="alert-border"></div>
+
+  <!-- FAKE VIRUS PANEL -->
+  <div class="panel" id="panel">
+    <div class="titlebar">
+      <div class="titlebar-dots">
+        <div class="dot dot-r"></div>
+        <div class="dot dot-y"></div>
+        <div class="dot dot-g"></div>
+      </div>
+      <div class="titlebar-title">⚠ SYSTEM SECURITY ALERT — CRITICAL</div>
+    </div>
+
+    <div class="panel-body">
+      <div class="icon-row">
+        <div class="shield-icon">🛡️</div>
+        <div>
+          <div class="headline">YOUR DEVICE<br>HAS BEEN COMPROMISED</div>
+          <div class="sub">Threat Level: CRITICAL &nbsp;|&nbsp; Action Required Immediately</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="log">
+        <div class="log-line">[<span class="log-ok">00:00:01</span>] Initializing deep scan... <span class="log-ok">OK</span></div>
+        <div class="log-line">[<span class="log-warn">00:00:03</span>] Suspicious process detected: <span class="log-warn">win32.trojan.exe</span></div>
+        <div class="log-line">[<span class="log-warn">00:00:05</span>] Keylogger module found in <span class="log-warn">/sys/kernel/</span></div>
+        <div class="log-line">[<span class="log-err">00:00:07</span>] CRITICAL: Root access granted to unknown remote IP</div>
+        <div class="log-line">[<span class="log-err">00:00:09</span>] ⛔ DATA EXFILTRATION IN PROGRESS — HALT IMMEDIATELY</div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-label">
+          <span>Scanning system files...</span>
+          <span id="pct">0%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill"></div>
+        </div>
+        <div class="threat-count">Threats found: <span id="tcount">0</span></div>
+      </div>
+
+      <button class="cta-btn" onclick="triggerPrank()">
+        🔴 &nbsp; CLICK HERE TO REMOVE ALL THREATS NOW
+      </button>
+
+      <div class="fine-print">
+        This scan was conducted by Windows Defender Pro™ &nbsp;|&nbsp; Do NOT close this window<br>
+        Ignoring this alert may result in permanent data loss and identity theft.
+      </div>
+    </div>
+  </div>
+
+  <!-- VIDEO / PRANK REVEAL OVERLAY -->
+  <div class="video-overlay" id="overlay">
+    <div class="fool-banner">🎉 APRIL FOOLS! 🎉</div>
+    <video id="vidFrame" controls autoplay playsinline style="width:min(900px,95vw);aspect-ratio:16/9;border-radius:2px;background:#000;">
+      <source id="vidSrc" src="" type="video/mp4">
+    </video>
+    <button class="close-btn" onclick="closeOverlay()">[ CLOSE ]</button>
+  </div>
+
+  <div class="credit">crafted by <span>THAIB</span></div>
+
+  <script>
+    // Custom cursor
+    const cursor = document.getElementById('cursor');
+    document.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top = e.clientY + 'px';
+    });
+
+    // Fake percentage counter
+    let pct = 0;
+    const pctEl = document.getElementById('pct');
+    const tcEl = document.getElementById('tcount');
+    const interval = setInterval(() => {
+      pct = Math.min(pct + Math.floor(Math.random() * 4 + 1), 100);
+      pctEl.textContent = pct + '%';
+      tcEl.textContent = Math.floor(pct * 0.47);
+      if (pct >= 100) clearInterval(interval);
+    }, 80);
+
+    // Trigger prank on button click
+    function triggerPrank() {
+      const overlay = document.getElementById('overlay');
+      overlay.classList.add('active');
+      const vid = document.getElementById('vidFrame');
+      document.getElementById('vidSrc').src = 'https://cf-hls-media.scdn.co/hls/6p0ww2/6p0ww2.m3u8';
+      vid.src = 'https://cdn-cf-east.streamable.com/video/mp4/6p0ww2.mp4';
+      vid.load();
+      vid.play().catch(() => {});
+    }
+
+    function closeOverlay() {
+      const overlay = document.getElementById('overlay');
+      overlay.classList.remove('active');
+      const vid = document.getElementById('vidFrame');
+      vid.pause();
+      vid.src = '';
+    }
+  </script>
+</body>
+</html>
